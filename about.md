@@ -4,12 +4,4 @@ title: About
 permalink: /about/
 ---
 
-Some information about you!
-
-### More Information
-
-A place to include any other types of information that you'd like to include about yourself.
-
-### Contact me
-
-[email@domain.com](mailto:email@domain.com)
+Computer science student at Claremont McKenna and Harvey Mudd Colleges. Softward development intern at Proto Labs, Inc. Any opinions expressed are my own, and not those of my schools or employers.
