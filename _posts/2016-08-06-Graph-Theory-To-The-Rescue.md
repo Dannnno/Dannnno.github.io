@@ -386,12 +386,6 @@ This isn't necessarily a problem - no requirement exists that each node knows
 its own basin - but it would be a nice thing to fix. This ends up being pretty
 easy:
 
-```
-for each node in the graph
-    if node is a sink
-        update all of node's parents' basins to be node
-```
-
 ```python
 def fix_basins(topography):
     for node in topography.nodes():
