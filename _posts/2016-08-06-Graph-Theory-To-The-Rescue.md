@@ -1,9 +1,7 @@
 ---
 layout: post
 title: "Graph Theory To The Rescue - Rainfall"
-tags:
-    - python
-    - notebook
+tags: [python, notebook, graphs]
 ---
 This post is also available as [an IPython notebook]({{ BASE_PATH }}/notebooks/Rainfall_Challenge_Graphs_v1.ipynb).<br/><br/>
 I try to be fairly active on the different Stack Exchange sites, and although
