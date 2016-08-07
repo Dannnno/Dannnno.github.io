@@ -5,7 +5,7 @@ title: Graph Theory to the rescue
 
 I try to be fairly active on the different Stack Exchange sites, and although
 Stack Overflow
-is <s>probably</s> undoubtedly the most famous one, I've been a big fan and
+is <s>probably</s> undoubtedly the most famous one, I've been a big fan andr
 pretty regular
 contributor over on [Code Review](http://codereview.stackexchange.com).  One of
 the cool things
@@ -191,7 +191,7 @@ ultra-friendly to any color-blind folks reading this; I apologize in advance.
     display_graph(topography)
 
 
-![png](Rainfall_Challenge_Graphs_v1_5_0.png)
+![png](/images/Rainfall_Challenge_Graphs_v1_5_0.png)
 
 
 At this point we have a workable graph with all of the pertinent information -
@@ -340,7 +340,7 @@ Now that we have fixed how we build up our graph, we can actually process it.
     display_graph(topography)
 
 
-![png](Rainfall_Challenge_Graphs_v1_9_0.png)
+![png](/images/Rainfall_Challenge_Graphs_v1_9_0.png)
 
 
 Hooray! We've successfully partitioned our graph and remove all of the
@@ -405,7 +405,7 @@ for each node in the graph
     display_graph(topography)
 
 
-![png](Rainfall_Challenge_Graphs_v1_13_0.png)
+![png](/images/Rainfall_Challenge_Graphs_v1_13_0.png)
 
 
 We can now see that each node has its own basin appropriately labeled.  This
@@ -444,7 +444,7 @@ just map from basin to color, and update how we draw our graphs.
     display_graph(topography)
 
 
-![png](Rainfall_Challenge_Graphs_v1_15_0.png)
+![png](/images/Rainfall_Challenge_Graphs_v1_15_0.png)
 
 
 We now have a nice and pretty solution to our graph problem!  I'll update this
