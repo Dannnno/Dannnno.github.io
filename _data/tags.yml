@@ -1,0 +1,11 @@
+cpp:
+  name: C++
+
+python:
+  name: Python
+  
+code-review:
+  name: Code Review
+  
+graphs:
+  name: Graphs
