@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "Rainfall_Challenge_Graphs_v1"
+title: "Graph Theory To The Rescue - Rainfall"
 tags:
     - python
     - notebook
 ---
-This post is also available as [an IPython notebook]({{ BASE_PATH }}/notebooks/Rainfall_Challenge_Graphs_v1.ipynb).
+This post is also available as [an IPython notebook]({{ BASE_PATH }}/notebooks/Rainfall_Challenge_Graphs_v1.ipynb).<br/><br/>
 I try to be fairly active on the different Stack Exchange sites, and although
 Stack Overflow
 is <s>probably</s> undoubtedly the most famous one, I've been a big fan and
