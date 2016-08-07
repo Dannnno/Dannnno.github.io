@@ -1,11 +1,13 @@
 ---
 layout: post
-title: Graph Theory to the rescue
+title: "Graph Theory To The Rescue - Rainfall"
+tags:
+    - python
+    - notebook
 ---
-
 I try to be fairly active on the different Stack Exchange sites, and although
 Stack Overflow
-is <s>probably</s> undoubtedly the most famous one, I've been a big fan andr
+is <s>probably</s> undoubtedly the most famous one, I've been a big fan and
 pretty regular
 contributor over on [Code Review](http://codereview.stackexchange.com).  One of
 the cool things
@@ -67,7 +69,9 @@ above.
 
 Let's make a file to test our implementation against.
 
-```python
+**In [1]:**
+
+{% highlight python %}
 with open("simple_rainfall_data.txt", "w") as rainfall_data_file:
     rainfall_data_file.write("""3
 1 5 2
@@ -76,12 +80,13 @@ with open("simple_rainfall_data.txt", "w") as rainfall_data_file:
         
 with open("simple_rainfall_data.txt") as rainfall_data_file:
     print(rainfall_data_file.read())
+{% endhighlight %}
 
-3
-1 5 2
-2 4 7
-3 6 9
-```    
+    3
+    1 5 2
+    2 4 7
+    3 6 9
+    
 
 Once we've partitioned that data into our basins, we'd have something like this:
 
@@ -91,7 +96,7 @@ A  A B
 A  A A
 ```
 
-Where `A` and `B` are basins, and `A*` and `B*` are the sinks.
+Where $A$ and $B$ are basins, and $A*$ and $B*$ are the sinks.
 
 ----------------------
 
@@ -110,7 +115,7 @@ One of the nicest features about NetworkX is that it doesn't require you to use
 its own node or edge data structures - any valid Python object works.
 Internally it uses lots of dictionaries so you can add arbitrary attributes to
 nodes and edges as well, which is helpful for us.  For now we'll consider a node
-the `(x, y)` coordinates of the plot, and we'll keep track of a few attributes
+the $(x, y)$ coordinates of the plot, and we'll keep track of a few attributes
 of our plot as well: the plot's elevation and the basin it falls in.  To start,
 the basin will just be the current plot - we don't know anything more at this
 point.
@@ -118,7 +123,7 @@ point.
 We can also add the edges at the same time, but we need to be a little careful
 because adding an edge in NetworkX will create any missing nodes. To avoid that
 problem we make each node responsible for creating the edge to its neighbors at
-`(x - 1, y)` and `(x, y - 1)` as long as the neighbor is already part of the
+$(x - 1, y)$ and $(x, y - 1)$ as long as the neighbor is already part of the
 graph.
 
 I also skip the header line - thanks to the glory of Python I don't need to
@@ -130,7 +135,9 @@ worthwhile for this example.
 _Note: These functions are going to change a bit over the course of this post as
 I realize some things I'm missing._
 
-```python
+**In [2]:**
+
+{% highlight python %}
 import networkx as nx
 
 def build_topography(filename):
@@ -159,7 +166,7 @@ def add_edges(topography, plot):
         topography.add_edge(plot, above_node)
     if left_node in topography:
         topography.add_edge(plot, left_node)
-```
+{% endhighlight %}
 
 I want a convenient way to be able to visualize my graphs as they are made, so I
 wrote a little utility function.  As it turns out drawing a graph is pretty
@@ -167,8 +174,9 @@ hard, so the output might not always be quite as pretty as I'd like. Usually
 running it a few times will give you something mostly pretty. This may not be
 ultra-friendly to any color-blind folks reading this; I apologize in advance.
 
+**In [3]:**
 
-```python
+{% highlight python %}
 import matplotlib.pyplot as plt
 %matplotlib inline
 
@@ -191,9 +199,10 @@ def display_graph(topography):
     
 topography = build_topography("simple_rainfall_data.txt")
 display_graph(topography)
-```
+{% endhighlight %}
 
-![png](/images/Rainfall_Challenge_Graphs_v1_5_0.png)
+
+![png]({{ BASE_PATH }}/images/rainfall_challenge_graphs_v1_5_0.png)
 
 
 At this point we have a workable graph with all of the pertinent information -
@@ -270,7 +279,9 @@ ections.namedtuple) and [total_ordering](https://docs.python.org/2/library/funct
 ools.html#functools.total_ordering) to remove more cruft - Python really made
 this easy by including all of the batteries we need.
 
-```python
+**In [4]:**
+
+{% highlight python %}
 from collections import namedtuple
 from functools import total_ordering
 import bisect
@@ -310,11 +321,13 @@ def add_node(topography, sorted_plots, plot, elevation):
         basin=plot,
         parents=[]
     )
-```
+{% endhighlight %}
 
 Now that we have fixed how we build up our graph, we can actually process it.
 
-```python
+**In [5]:**
+
+{% highlight python %}
 def process_topography(topography, sorted_nodes):
     for node in sorted_nodes:
         node = node.plot
@@ -341,9 +354,10 @@ def process_topography(topography, sorted_nodes):
 topography, sorted_plots = build_topography("simple_rainfall_data.txt")
 process_topography(topography, sorted_plots)
 display_graph(topography)
-```
+{% endhighlight %}
 
-![png](/images/Rainfall_Challenge_Graphs_v1_9_0.png)
+
+![png]({{ BASE_PATH }}/images/rainfall_challenge_graphs_v1_9_0.png)
 
 
 Hooray! We've successfully partitioned our graph and remove all of the
@@ -363,7 +377,9 @@ space-separated list of the size of each basin in descending order.  This ends
 up being really easy - NetworkX has some nice methods to get the connected sub-
 components of a graph.
 
-```python
+**In [6]:**
+
+{% highlight python %}
 def get_basin_sizes(connected_components):
     return (
         len(component)
@@ -372,9 +388,10 @@ def get_basin_sizes(connected_components):
 
 for basin in get_basin_sizes(nx.connected_components(topography)):
     print basin,
+{% endhighlight %}
 
-7 2
-```
+    7 2
+    
 
 And voila!
 
@@ -386,7 +403,15 @@ This isn't necessarily a problem - no requirement exists that each node knows
 its own basin - but it would be a nice thing to fix. This ends up being pretty
 easy:
 
-```python
+```
+for each node in the graph
+    if node is a sink
+        update all of node's parents' basins to be node
+```
+
+**In [7]:**
+
+{% highlight python %}
 def fix_basins(topography):
     for node in topography.nodes():
         if is_sink(topography, node):
@@ -400,9 +425,10 @@ def is_sink(topography, node):
 
 fix_basins(topography)
 display_graph(topography)
-```
+{% endhighlight %}
 
-![png](/images/Rainfall_Challenge_Graphs_v1_13_0.png)
+
+![png]({{ BASE_PATH }}/images/rainfall_challenge_graphs_v1_13_0.png)
 
 
 We can now see that each node has its own basin appropriately labeled.  This
@@ -410,8 +436,9 @@ then makes it even easier for us to add colors for each component!  We can just
 get the connected components again, and look at the basin of the first one. Then
 just map from basin to color, and update how we draw our graphs.
 
+**In [8]:**
 
-```python
+{% highlight python %}
 import numpy as np
 
 def get_basin_colors(topography):
@@ -440,9 +467,10 @@ def display_graph(topography):
     plt.show()
     
 display_graph(topography)
-```
+{% endhighlight %}
 
-![png](/images/Rainfall_Challenge_Graphs_v1_15_0.png)
+
+![png]({{ BASE_PATH }}/images/rainfall_challenge_graphs_v1_15_0.png)
 
 
 We now have a nice and pretty solution to our graph problem!  I'll update this
@@ -450,11 +478,8 @@ post later once I get feedback on my solution (either in the comments below, or
 over on CR.SE) to discuss things that work well, and things that don't.
 
 My biggest concern about my solution is scalability - lots of graph algorithms
-aren't cheap, and if we end up with large tracts of land, i.e. `5000 x 5000`
+aren't cheap, and if we end up with large tracts of land, i.e. $5000 x 5000$
 (the largest size possible according to the problem) then I don't know how well
 my solution scales.  I haven't gotten around to writing a function to generate
 new arbitrary-sized plots of land, but once I do I'll be sure to test how my
 solution scales.
-
-
-    
