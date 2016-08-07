@@ -91,7 +91,7 @@ A  A B
 A  A A
 ```
 
-Where $A$ and $B$ are basins, and $A*$ and $B*$ are the sinks.
+Where `A` and `B` are basins, and `A*` and `B*` are the sinks.
 
 ----------------------
 
@@ -110,7 +110,7 @@ One of the nicest features about NetworkX is that it doesn't require you to use
 its own node or edge data structures - any valid Python object works.
 Internally it uses lots of dictionaries so you can add arbitrary attributes to
 nodes and edges as well, which is helpful for us.  For now we'll consider a node
-the $(x, y)$ coordinates of the plot, and we'll keep track of a few attributes
+the `(x, y)` coordinates of the plot, and we'll keep track of a few attributes
 of our plot as well: the plot's elevation and the basin it falls in.  To start,
 the basin will just be the current plot - we don't know anything more at this
 point.
@@ -118,7 +118,7 @@ point.
 We can also add the edges at the same time, but we need to be a little careful
 because adding an edge in NetworkX will create any missing nodes. To avoid that
 problem we make each node responsible for creating the edge to its neighbors at
-$(x - 1, y)$ and $(x, y - 1)$ as long as the neighbor is already part of the
+`(x - 1, y)` and `(x, y - 1)` as long as the neighbor is already part of the
 graph.
 
 I also skip the header line - thanks to the glory of Python I don't need to
@@ -456,7 +456,7 @@ post later once I get feedback on my solution (either in the comments below, or
 over on CR.SE) to discuss things that work well, and things that don't.
 
 My biggest concern about my solution is scalability - lots of graph algorithms
-aren't cheap, and if we end up with large tracts of land, i.e. $5000 x 5000$
+aren't cheap, and if we end up with large tracts of land, i.e. `5000 x 5000`
 (the largest size possible according to the problem) then I don't know how well
 my solution scales.  I haven't gotten around to writing a function to generate
 new arbitrary-sized plots of land, but once I do I'll be sure to test how my
