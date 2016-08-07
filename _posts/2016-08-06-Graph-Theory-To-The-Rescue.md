@@ -67,21 +67,21 @@ above.
 
 Let's make a file to test our implementation against.
 
+```python
+with open("simple_rainfall_data.txt", "w") as rainfall_data_file:
+    rainfall_data_file.write("""3
+1 5 2
+2 4 7
+3 6 9""")
+        
+with open("simple_rainfall_data.txt") as rainfall_data_file:
+    print(rainfall_data_file.read())
 
-    with open("simple_rainfall_data.txt", "w") as rainfall_data_file:
-        rainfall_data_file.write("""3
-    1 5 2
-    2 4 7
-    3 6 9""")
-            
-    with open("simple_rainfall_data.txt") as rainfall_data_file:
-        print(rainfall_data_file.read())
-
-    3
-    1 5 2
-    2 4 7
-    3 6 9
-    
+3
+1 5 2
+2 4 7
+3 6 9
+```    
 
 Once we've partitioned that data into our basins, we'd have something like this:
 
@@ -130,35 +130,36 @@ worthwhile for this example.
 _Note: These functions are going to change a bit over the course of this post as
 I realize some things I'm missing._
 
+```python
+import networkx as nx
 
-    import networkx as nx
-    
-    def build_topography(filename):
-        with open(filename) as elevation_data:
-            lines = iter(elevation_data)
-            next(lines)
-    
-            topography = nx.Graph()
-    
-            for row_index, row in enumerate(lines):
-                for plot_index, elevation in enumerate(map(int, row.split())):
-                    plot = (row_index, plot_index)
-                    topography.add_node(
-                        plot,
-                        elevation=elevation,
-                        basin=plot
-                    )
-                    add_edges(topography, plot)
-    
-        return topography
-    
-    def add_edges(topography, plot):
-        above_node = (plot[0] - 1, plot[1])
-        left_node = (plot[0], plot[1] - 1)
-        if above_node in topography:
-            topography.add_edge(plot, above_node)
-        if left_node in topography:
-            topography.add_edge(plot, left_node)
+def build_topography(filename):
+    with open(filename) as elevation_data:
+        lines = iter(elevation_data)
+        next(lines)
+
+        topography = nx.Graph()
+
+        for row_index, row in enumerate(lines):
+            for plot_index, elevation in enumerate(map(int, row.split())):
+                plot = (row_index, plot_index)
+                topography.add_node(
+                    plot,
+                    elevation=elevation,
+                    basin=plot
+                )
+                add_edges(topography, plot)
+
+    return topography
+
+def add_edges(topography, plot):
+    above_node = (plot[0] - 1, plot[1])
+    left_node = (plot[0], plot[1] - 1)
+    if above_node in topography:
+        topography.add_edge(plot, above_node)
+    if left_node in topography:
+        topography.add_edge(plot, left_node)
+```
 
 I want a convenient way to be able to visualize my graphs as they are made, so I
 wrote a little utility function.  As it turns out drawing a graph is pretty
@@ -167,29 +168,30 @@ running it a few times will give you something mostly pretty. This may not be
 ultra-friendly to any color-blind folks reading this; I apologize in advance.
 
 
-    import matplotlib.pyplot as plt
-    %matplotlib inline
-    
-    def get_label(topography, node):
-        n_dict = topography.node[node]
-        return "{} - {}".format(n_dict['basin'], n_dict['elevation'])
-    
-    def display_graph(topography):
-        # Todo: Work out colors for color-blindedness
-        labels = {node : get_label(topography, node) for node in topography.nodes()}
-        kwargs = {
-            'with_labels': True,
-            'layout': nx.shell_layout(topography),
-            'labels': labels
-        }
-    
-        nx.draw(topography, **kwargs)
-        plt.draw()
-        plt.show()
-        
-    topography = build_topography("simple_rainfall_data.txt")
-    display_graph(topography)
+```python
+import matplotlib.pyplot as plt
+%matplotlib inline
 
+def get_label(topography, node):
+    n_dict = topography.node[node]
+    return "{} - {}".format(n_dict['basin'], n_dict['elevation'])
+
+def display_graph(topography):
+    # Todo: Work out colors for color-blindedness
+    labels = {node : get_label(topography, node) for node in topography.nodes()}
+    kwargs = {
+        'with_labels': True,
+        'layout': nx.shell_layout(topography),
+        'labels': labels
+    }
+
+    nx.draw(topography, **kwargs)
+    plt.draw()
+    plt.show()
+    
+topography = build_topography("simple_rainfall_data.txt")
+display_graph(topography)
+```
 
 ![png](/images/Rainfall_Challenge_Graphs_v1_5_0.png)
 
@@ -268,77 +270,78 @@ ections.namedtuple) and [total_ordering](https://docs.python.org/2/library/funct
 ools.html#functools.total_ordering) to remove more cruft - Python really made
 this easy by including all of the batteries we need.
 
+```python
+from collections import namedtuple
+from functools import total_ordering
+import bisect
 
-    from collections import namedtuple
-    from functools import total_ordering
-    import bisect
-    
-    
-    @total_ordering
-    class PlotData(namedtuple('PlotData', 'plot elevation')):
-    
-        def __lt__(self, other):
-            return self.elevation < other.elevation
-    
-        def __eq__(self, other):
-            return self.elevation == other.elevation
-    
-    def build_topography(filename):
-        with open(filename) as elevation_data:
-            lines = iter(elevation_data)
-            next(lines)
-    
-            topography = nx.Graph()
-            sorted_plots = []
-    
-            for row_index, row in enumerate(lines):
-                for plot_index, elevation in enumerate(map(int, row.split())):
-                    plot = (row_index, plot_index)
-                    add_node(topography, sorted_plots, plot, elevation)
-                    add_edges(topography, plot)
-    
-        return topography, reversed(sorted_plots)
-    
-    def add_node(topography, sorted_plots, plot, elevation):
-        data = PlotData(plot, elevation)
-        bisect.insort(sorted_plots, data)
-        topography.add_node(
-            plot,
-            elevation=elevation,
-            basin=plot,
-            parents=[]
-        )
+
+@total_ordering
+class PlotData(namedtuple('PlotData', 'plot elevation')):
+
+    def __lt__(self, other):
+        return self.elevation < other.elevation
+
+    def __eq__(self, other):
+        return self.elevation == other.elevation
+
+def build_topography(filename):
+    with open(filename) as elevation_data:
+        lines = iter(elevation_data)
+        next(lines)
+
+        topography = nx.Graph()
+        sorted_plots = []
+
+        for row_index, row in enumerate(lines):
+            for plot_index, elevation in enumerate(map(int, row.split())):
+                plot = (row_index, plot_index)
+                add_node(topography, sorted_plots, plot, elevation)
+                add_edges(topography, plot)
+
+    return topography, reversed(sorted_plots)
+
+def add_node(topography, sorted_plots, plot, elevation):
+    data = PlotData(plot, elevation)
+    bisect.insort(sorted_plots, data)
+    topography.add_node(
+        plot,
+        elevation=elevation,
+        basin=plot,
+        parents=[]
+    )
+```
 
 Now that we have fixed how we build up our graph, we can actually process it.
 
-
-    def process_topography(topography, sorted_nodes):
-        for node in sorted_nodes:
-            node = node.plot
-            edges = topography[node]
-            if edges:
-                min_elevation = topography.node[node]['elevation']
-                basin = node
-                parents = topography.node[node]['parents']
-                for connected_node in edges:
-                    elevation = topography.node[connected_node]['elevation']
-                    if elevation < min_elevation:
-                        min_elevation = elevation
-                        basin = connected_node
-                topography.node[node]['basin'] = basin
-                topography.node[basin]['parents'].append(node)
-                topography.node[basin]['parents'].extend(parents)
-                edges_to_remove = [connected_node
-                                   for connected_node in edges
-                                   if connected_node != basin and
-                                      connected_node not in parents]
-                for edge_to_remove in edges_to_remove:
-                    topography.remove_edge(node, edge_to_remove)
-                    
-    topography, sorted_plots = build_topography("simple_rainfall_data.txt")
-    process_topography(topography, sorted_plots)
-    display_graph(topography)
-
+```python
+def process_topography(topography, sorted_nodes):
+    for node in sorted_nodes:
+        node = node.plot
+        edges = topography[node]
+        if edges:
+            min_elevation = topography.node[node]['elevation']
+            basin = node
+            parents = topography.node[node]['parents']
+            for connected_node in edges:
+                elevation = topography.node[connected_node]['elevation']
+                if elevation < min_elevation:
+                    min_elevation = elevation
+                    basin = connected_node
+            topography.node[node]['basin'] = basin
+            topography.node[basin]['parents'].append(node)
+            topography.node[basin]['parents'].extend(parents)
+            edges_to_remove = [connected_node
+                               for connected_node in edges
+                               if connected_node != basin and
+                                  connected_node not in parents]
+            for edge_to_remove in edges_to_remove:
+                topography.remove_edge(node, edge_to_remove)
+                
+topography, sorted_plots = build_topography("simple_rainfall_data.txt")
+process_topography(topography, sorted_plots)
+display_graph(topography)
+```
 
 ![png](/images/Rainfall_Challenge_Graphs_v1_9_0.png)
 
@@ -360,18 +363,18 @@ space-separated list of the size of each basin in descending order.  This ends
 up being really easy - NetworkX has some nice methods to get the connected sub-
 components of a graph.
 
+```python
+def get_basin_sizes(connected_components):
+    return (
+        len(component)
+        for component in sorted(connected_components, key=len, reverse=True)
+    )
 
-    def get_basin_sizes(connected_components):
-        return (
-            len(component)
-            for component in sorted(connected_components, key=len, reverse=True)
-        )
-    
-    for basin in get_basin_sizes(nx.connected_components(topography)):
-        print basin,
+for basin in get_basin_sizes(nx.connected_components(topography)):
+    print basin,
 
-    7 2
-    
+7 2
+```
 
 And voila!
 
@@ -389,21 +392,21 @@ for each node in the graph
         update all of node's parents' basins to be node
 ```
 
+```python
+def fix_basins(topography):
+    for node in topography.nodes():
+        if is_sink(topography, node):
+            for parent in topography.node[node]['parents']:
+                topography.node[parent]['basin'] = node
 
-    def fix_basins(topography):
-        for node in topography.nodes():
-            if is_sink(topography, node):
-                for parent in topography.node[node]['parents']:
-                    topography.node[parent]['basin'] = node
-    
-    def is_sink(topography, node):
-        connected_nodes = topography[node]
-        parents = topography.node[node]['parents']
-        return all(connected in parents for connected in connected_nodes)
-    
-    fix_basins(topography)
-    display_graph(topography)
+def is_sink(topography, node):
+    connected_nodes = topography[node]
+    parents = topography.node[node]['parents']
+    return all(connected in parents for connected in connected_nodes)
 
+fix_basins(topography)
+display_graph(topography)
+```
 
 ![png](/images/Rainfall_Challenge_Graphs_v1_13_0.png)
 
@@ -414,35 +417,36 @@ get the connected components again, and look at the basin of the first one. Then
 just map from basin to color, and update how we draw our graphs.
 
 
-    import numpy as np
-    
-    def get_basin_colors(topography):
-        connected_components = list(nx.connected_components(topography))
-        colors = np.linspace(0, 1, len(connected_components))
-        return {
-            topography.node[component[0]]['basin'] : color
-            for component, color in zip(connected_components, colors)
-        }
-    
-    
-    def display_graph(topography):
-        labels = {node : get_label(topography, node) for node in topography.nodes()}
-        color_dict = get_basin_colors(topography)
-        colors = [color_dict[topography.node[node]['basin']] for node in topography.nodes()]
-        
-        kwargs = {
-            'with_labels': True,
-            'layout': nx.shell_layout(topography),
-            'labels': labels,
-            'node_color': colors
-        }
-        
-        nx.draw(topography, **kwargs)
-        plt.draw()
-        plt.show()
-        
-    display_graph(topography)
+```python
+import numpy as np
 
+def get_basin_colors(topography):
+    connected_components = list(nx.connected_components(topography))
+    colors = np.linspace(0, 1, len(connected_components))
+    return {
+        topography.node[component[0]]['basin'] : color
+        for component, color in zip(connected_components, colors)
+    }
+
+
+def display_graph(topography):
+    labels = {node : get_label(topography, node) for node in topography.nodes()}
+    color_dict = get_basin_colors(topography)
+    colors = [color_dict[topography.node[node]['basin']] for node in topography.nodes()]
+    
+    kwargs = {
+        'with_labels': True,
+        'layout': nx.shell_layout(topography),
+        'labels': labels,
+        'node_color': colors
+    }
+    
+    nx.draw(topography, **kwargs)
+    plt.draw()
+    plt.show()
+    
+display_graph(topography)
+```
 
 ![png](/images/Rainfall_Challenge_Graphs_v1_15_0.png)
 
