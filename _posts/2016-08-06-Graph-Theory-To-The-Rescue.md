@@ -1,4 +1,3 @@
-
 ---
 layout: post
 title: Graph Theory to the rescue
